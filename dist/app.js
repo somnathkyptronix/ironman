@@ -1227,6 +1227,33 @@ document.addEventListener('DOMContentLoaded', () => {
             interactivePins.forEach(pin => pin.classList.remove('visible'));
         }
 
+        // Mobile Horizontal Scroll-Tethered Carousel Logic
+        const mobileCarousel = document.getElementById('mobile-orbit-carousel');
+        const mobileThumb = document.getElementById('mobile-scroll-thumb');
+        const mobileStatus = document.getElementById('mobile-scroll-status');
+
+        if (mobileCarousel && window.innerWidth <= 860 && orbitHub) {
+            const orbitRect = orbitHub.getBoundingClientRect();
+            const totalScroll = orbitHub.offsetHeight - window.innerHeight;
+            if (totalScroll > 0) {
+                const scrollProgress = Math.min(1.0, Math.max(0.0, -orbitRect.top / totalScroll));
+                const windowWidth = mobileCarousel.parentElement.clientWidth;
+                const fullWidth = mobileCarousel.scrollWidth;
+                const maxTranslate = Math.max(0, fullWidth - windowWidth + 30);
+                
+                const currentTranslate = scrollProgress * maxTranslate;
+                mobileCarousel.style.transform = `translateX(-${currentTranslate}px)`;
+
+                if (mobileThumb) {
+                    mobileThumb.style.width = `${Math.max(18, scrollProgress * 100)}%`;
+                }
+                if (mobileStatus) {
+                    const sectorIndex = Math.min(5, Math.floor(scrollProgress * 4.98) + 1);
+                    mobileStatus.textContent = `SECTOR ${sectorIndex} OF 5 // SCROLL TO CYCLE`;
+                }
+            }
+        }
+
         // Stage 3: 3D Volumetric Electric Plasma Lightning Aura Vortex (Climax Finale)
         // Inspired by Pinterest Electric Plasma Aura Supernova
         let auraScale = 0.0;
