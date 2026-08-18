@@ -832,17 +832,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAudioUI(playing) {
         state.audioActive = playing;
-        const icon = document.getElementById('audio-icon');
-        const audioBtn = document.getElementById('audio-toggle');
+        const icons = [document.getElementById('audio-icon'), document.getElementById('audio-icon-desktop')];
+        const audioBtns = [document.getElementById('audio-toggle'), document.getElementById('audio-toggle-desktop')];
         
-        if (icon) {
-            icon.setAttribute('data-lucide', playing ? 'volume-2' : 'volume-x');
-            if (window.lucide) lucide.createIcons();
-        }
-        if (audioBtn) {
-            audioBtn.classList.toggle('playing', playing);
-            audioBtn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
-        }
+        icons.forEach(icon => {
+            if (icon) {
+                icon.setAttribute('data-lucide', playing ? 'volume-2' : 'volume-x');
+            }
+        });
+        audioBtns.forEach(btn => {
+            if (btn) {
+                btn.classList.toggle('playing', playing);
+                btn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
+            }
+        });
+        if (window.lucide) lucide.createIcons();
     }
 
     function playBackgroundAudio() {
@@ -1027,10 +1031,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const audioToggle = document.getElementById('audio-toggle');
-    if (audioToggle) {
-        audioToggle.addEventListener('click', toggleAudio);
-    }
+    [document.getElementById('audio-toggle'), document.getElementById('audio-toggle-desktop')].forEach(btn => {
+        if (btn) btn.addEventListener('click', toggleAudio);
+    });
 
     const btnPulseNet = document.getElementById('btn-pulse-network');
     if (btnPulseNet) {
@@ -1114,8 +1117,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const hubTop = orbitHub ? orbitHub.offsetTop : 650;
         const finaleTop = finaleSection ? finaleSection.offsetTop : 1600;
 
-        // Stage 1: 3D Cosmic Cube (Home Section)
-        // Zoomed in at top (scale 1.0, z = 0). ZOOMS OUT into deep space (z: 0 -> -15) as scroll goes down.
+        // Dynamic Camera Transition Pipeline
+        let targetCamZ = 7.5;
+        let targetCamY = 0.0;
+
+        if (scrollY < hubTop) {
+            const p = scrollY / hubTop;
+            targetCamZ = 7.5 - p * 1.5;
+        } else if (scrollY < finaleTop) {
+            const p = (scrollY - hubTop) / (finaleTop - hubTop);
+            targetCamZ = 6.0 + p * 2.0;
+        } else {
+            targetCamZ = 8.0;
+        }
+
+        camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+
+        // Stage 1: Cosmic Energy Plasma Cube Transitions
         let cubeScale = 1.0;
         let cubeZ = 0;
         if (scrollY < hubTop * 0.75) {
@@ -1131,31 +1149,26 @@ document.addEventListener('DOMContentLoaded', () => {
         energyCube.visible = cubeScale > 0.01;
 
         if (energyCube.visible) {
-            energyCube.rotation.y = Math.sin(elapsedTime * 0.8 * state.rotationSpeed) * 0.35; // Gentle sway (-20° to +20°)
-            energyCube.rotation.x = Math.cos(elapsedTime * 0.6 * state.rotationSpeed) * 0.15; // Subtle vertical tilt
+            energyCube.rotation.y = Math.sin(elapsedTime * 0.8 * state.rotationSpeed) * 0.35;
+            energyCube.rotation.x = Math.cos(elapsedTime * 0.6 * state.rotationSpeed) * 0.15;
             energyCube.rotation.z = Math.sin(elapsedTime * 0.4 * state.rotationSpeed) * 0.08;
         }
 
         // Stage 2: Cyber Quantum Geodesic Network Sphere & Orbit Connector Hubs
-        // ZOOMS IN from deep space (z: -15 -> 0, scale 0 -> 1) and EXPANDS TO FULL DISPLAY (scale: 1.0 -> 3.6),
-        // then smoothly fades out as user scrolls down into the Finale Section!
         let netScale = 0.0;
         let netZ = -15.0;
 
         if (scrollY > hubTop * 0.1 && scrollY < finaleTop * 0.95) {
             if (scrollY < hubTop * 0.65) {
-                // Phase A: Zoom IN from deep space to normal focus
                 const p = (scrollY - hubTop * 0.1) / (hubTop * 0.55);
                 netScale = Math.min(1.0, Math.max(0.0, p));
                 netZ = (1.0 - netScale) * -15.0;
             } else if (scrollY < finaleTop * 0.6) {
-                // Phase B: FULL DISPLAY ZOOM EXPANSION (Sphere fills display, sections settle)
                 const p = (scrollY - hubTop * 0.65) / (hubTop * 0.65);
                 const zoomFactor = Math.min(1.0, Math.max(0.0, p));
-                netScale = 1.0 + (zoomFactor * 2.6); // Scales up from 1.0 to 3.6
-                netZ = zoomFactor * 1.6;             // Moves closer to camera
+                netScale = 1.0 + (zoomFactor * 2.6);
+                netZ = zoomFactor * 1.6;
             } else {
-                // Phase C: Transcends and yields focus to the Finale Electric Plasma Aura
                 const p = (scrollY - finaleTop * 0.6) / (finaleTop * 0.35);
                 netScale = Math.max(0.0, 3.6 * (1.0 - p));
                 netZ = 1.6 + p * 2.0;
@@ -1166,7 +1179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         latticeSphereGroup.position.set(0, 0, netZ);
         latticeSphereGroup.visible = netScale > 0.01;
 
-        // Geodesic Network Sphere Continuous Rotations & Pulsing
         if (latticeSphereGroup.visible) {
             geodesicWireframe.rotation.y += delta * 0.22;
             geodesicWireframe.rotation.x += delta * 0.10;
@@ -1175,34 +1187,31 @@ document.addEventListener('DOMContentLoaded', () => {
             netParticleRing.rotation.y += delta * 0.15;
             cyanCore.scale.setScalar(Math.sin(elapsedTime * 3.5) * 0.12 + 0.92);
 
-            // Project 3D Connector Node World Positions & Interpolate to Settled Screen Positions
             const tempVec = new THREE.Vector3();
             const camDir = new THREE.Vector3();
             camera.getWorldDirection(camDir);
 
-            // Settle progress: 0 (pure 3D orbit projection) -> 1 (settled clean display framing)
             const settleProgress = Math.min(1.0, Math.max(0.0, (netScale - 1.1) / 2.2));
+            const isMobile = window.innerWidth <= 768;
+            const pinCardW = isMobile ? 140 : 200;
 
             interactiveNodeMeshes.forEach((nodeObj) => {
                 nodeObj.orb.getWorldPosition(tempVec);
                 
-                // Show connector pins when orbit is expanding (netScale >= 0.6)
                 if (netScale >= 0.6) {
                     tempVec.project(camera);
                     const projX = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                     const projY = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
 
-                    // Settled Screen Position for this node
                     const settledTargetX = (nodeObj.data.settledX || 0.5) * window.innerWidth;
                     const settledTargetY = (nodeObj.data.settledY || 0.5) * window.innerHeight;
 
-                    // Smooth blend from 3D projected point to settled screen frame point
                     const finalX = projX * (1.0 - settleProgress) + settledTargetX * settleProgress;
                     const finalY = projY * (1.0 - settleProgress) + settledTargetY * settleProgress;
 
-                    // Clamp to viewport
-                    const clampedX = Math.max(60, Math.min(window.innerWidth - 220, finalX));
-                    const clampedY = Math.max(80, Math.min(window.innerHeight - 80, finalY));
+                    // Responsive clamp to viewport
+                    const clampedX = Math.max(isMobile ? 10 : 30, Math.min(window.innerWidth - pinCardW - 10, finalX));
+                    const clampedY = Math.max(isMobile ? 80 : 60, Math.min(window.innerHeight - 80, finalY));
 
                     nodeObj.pinEl.style.left = `${clampedX}px`;
                     nodeObj.pinEl.style.top = `${clampedY}px`;
@@ -1212,7 +1221,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         } else {
-            // Hide all pins when orbit is inactive
             interactivePins.forEach(pin => pin.classList.remove('visible'));
         }
 
