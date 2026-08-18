@@ -1,0 +1,22 @@
+{
+  "name": "nexus-quantum-3d-cube",
+  "version": "1.0.0",
+  "description": "Interactive 3D WebGL Cosmic Energy Cube & Cyber Quantum Geodesic Lattice Sphere Homepage",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server . -p 3000 -c-1",
+    "start": "npx http-server . -p 3000 -c-1",
+    "serve": "npx http-server . -p 3000 -c-1",
+    "build": "node build.js"
+  },
+  "keywords": [
+    "threejs",
+    "webgl",
+    "3d",
+    "shader",
+    "geodesic",
+    "landing-page"
+  ],
+  "author": "",
+  "license": "ISC"
+}

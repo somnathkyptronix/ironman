@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS // Quantum Cosmic Cube Engine</title>
+    <meta name="description"
+        content="Next-generation interactive 3D WebGL Cosmic Energy Cube power grid & telemetry hub.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js & Post-Processing Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Background Canvas Container -->
+    <div id="canvas-container"></div>
+    <div class="vignette-overlay"></div>
+    <div class="grid-background"></div>
+
+    <!-- Interactive 3D Orbit Connector Pins Overlay -->
+    <div id="orbit-connector-overlay" class="orbit-connector-overlay"></div>
+
+    <!-- Quantum Warp Notification HUD -->
+    <div id="warp-notification" class="warp-notification">
+        <div class="warp-spinner"></div>
+        <div class="warp-text">
+            <span class="warp-status">QUANTUM WARP ENGAGED</span>
+            <span class="warp-dest" id="warp-dest-name">DESTINATION: SECTOR 01</span>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i data-lucide="box"></i>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">NEXUS<span class="highlight">//</span>CORE</span>
+                <span class="brand-tag">QUANTUM STUDIO V4.9</span>
+            </div>
+        </div>
+
+        <!-- Cosmic Infinity Stones Navbar Menu -->
+        <nav class="nav-links stones-menu">
+            <a href="#home" class="nav-stone-item active" style="--stone-color: #00d2ff; --stone-glow: rgba(0, 210, 255, 0.8);">
+                <div class="stone-container">
+                    <div class="stone-aura"></div>
+                    <canvas class="stone-canvas" id="canvas-stone-home" width="70" height="70"></canvas>
+                </div>
+                <span class="stone-label">Home</span>
+            </a>
+
+            <a href="#about" class="nav-stone-item" style="--stone-color: #00ff88; --stone-glow: rgba(0, 255, 136, 0.8);">
+                <div class="stone-container">
+                    <div class="stone-aura"></div>
+                    <canvas class="stone-canvas" id="canvas-stone-about" width="70" height="70"></canvas>
+                </div>
+                <span class="stone-label">About Us</span>
+            </a>
+
+            <a href="#work" class="nav-stone-item" style="--stone-color: #c084fc; --stone-glow: rgba(192, 132, 252, 0.8);">
+                <div class="stone-container">
+                    <div class="stone-aura"></div>
+                    <canvas class="stone-canvas" id="canvas-stone-work" width="70" height="70"></canvas>
+                </div>
+                <span class="stone-label">Our Work</span>
+            </a>
+
+            <a href="#pricing" class="nav-stone-item" style="--stone-color: #fbbf24; --stone-glow: rgba(251, 191, 36, 0.8);">
+                <div class="stone-container">
+                    <div class="stone-aura"></div>
+                    <canvas class="stone-canvas" id="canvas-stone-pricing" width="70" height="70"></canvas>
+                </div>
+                <span class="stone-label">Pricing</span>
+            </a>
+
+            <a href="#contact" class="nav-stone-item" style="--stone-color: #ff3b69; --stone-glow: rgba(255, 59, 105, 0.8);">
+                <div class="stone-container">
+                    <div class="stone-aura"></div>
+                    <canvas class="stone-canvas" id="canvas-stone-contact" width="70" height="70"></canvas>
+                </div>
+                <span class="stone-label">Contact Us</span>
+            </a>
+        </nav>
+
+        <div class="nav-actions">
+            <button id="audio-toggle" class="icon-btn" title="Toggle Atmospheric Audio">
+                <i data-lucide="volume-x" id="audio-icon"></i>
+            </button>
+            <a href="#contact" class="btn btn-primary" id="cta-connect">
+                <i data-lucide="zap"></i>
+                <span>Get Started</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-layout">
+        <!-- 1. HOME SECTION -->
+        <section id="home" class="hero-section">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                <span>QUANTUM FLUX MATRIX ONLINE</span>
+            </div>
+            <h1 class="hero-title">
+                HARVEST THE INFINITE <br>
+                <span class="gradient-text">COSMIC ENERGY CUBE</span>
+            </h1>
+            <p class="hero-description">
+                Engineered with high-density volumetric plasma shaders, real-time refractive crystal physics, and
+                zero-point lattice resonance. Touch, rotate, and manipulate the core matrix.
+            </p>
+
+            <div class="hero-cta-group">
+                <button class="btn btn-glow" id="btn-pulse-core">
+                    <i data-lucide="sparkles"></i>
+                    <span>Trigger Energy Pulse</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-reset-view">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Reset View</span>
+                </button>
+            </div>
+
+            <!-- Telemetry Stats Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i data-lucide="activity"></i>
+                        <span>ENERGY OUTPUT</span>
+                    </div>
+                    <div class="stat-value" id="val-energy">98.4 <small>PFLOPS</small></div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i data-lucide="thermometer"></i>
+                        <span>CORE TEMP</span>
+                    </div>
+                    <div class="stat-value" id="val-temp">4.2 <small>KELVIN</small></div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" style="width: 24%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i data-lucide="shield-check"></i>
+                        <span>LATTICE STABILITY</span>
+                    </div>
+                    <div class="stat-value" id="val-stability">99.99 <small>%</small></div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" style="width: 99%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i data-lucide="gauge"></i>
+                        <span>FRAME RATE</span>
+                    </div>
+                    <div class="stat-value" id="val-fps">60 <small>FPS</small></div>
+                    <div class="stat-bar">
+                        <div class="stat-fill green" id="fps-bar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scroll Indicator Bar -->
+        <div class="scroll-indicator">
+            <span class="scroll-text">SCROLL TO ZOOM ORBIT & REVEAL INTERACTIVE HUBS</span>
+            <div class="scroll-arrow"><i data-lucide="chevron-down"></i></div>
+        </div>
+
+        <!-- 2. FULL-SCREEN 3D ORBIT MATRIX HUB -->
+        <section id="orbit-hub" class="orbit-hub-section">
+            <div class="orbit-hud-indicator">
+                <span class="pulse-dot cyan"></span>
+                <span class="hud-text">ORBITAL MATRIX ENGAGED // SELECT DESTINATION SECTOR</span>
+            </div>
+        </section>
+
+        <!-- 3. CLIMAX FINALE SECTION: ELECTRIC PLASMA AURA, ROBO ASSISTANT & THANK YOU -->
+        <section id="finale-section" class="finale-section">
+            <!-- Thank You & Visit Again Card -->
+            <div class="finale-card glass-card">
+                <div class="hero-badge cyan">
+                    <span class="pulse-dot cyan"></span>
+                    <span>MISSION ACCOMPLISHED // QUANTUM LINK ACTIVE</span>
+                </div>
+
+                <h2 class="finale-title">
+                    Thank You & <br>
+                    <span class="gradient-text-cyan">Visit Again</span>
+                </h2>
+
+                <p class="finale-desc">
+                    We appreciate your journey across the Nexus Cosmic Grid. Powering next-generation 3D spatial
+                    computing, interactive WebGL physics, and quantum realities.
+                </p>
+
+                <!-- Futuristic Robo Assistant Container -->
+                <div class="robo-assistant-container" id="robo-container">
+                    <div class="robo-avatar-wrapper">
+                        <div class="robo-holo-rings"></div>
+                        <div class="robo-avatar">
+                            <div class="robo-head">
+                                <div class="robo-antennae left"></div>
+                                <div class="robo-antennae right"></div>
+                                <div class="robo-face">
+                                    <div class="robo-visor">
+                                        <div class="visor-eye left"></div>
+                                        <div class="visor-eye right"></div>
+                                        <div class="visor-scanline"></div>
+                                    </div>
+                                </div>
+                                <div class="robo-core-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="robo-dialogue-box glass-card">
+                        <div class="dialogue-header">
+                            <span class="robo-tag"><i data-lucide="bot"></i> NEXUS-AI SENTINEL V4.9</span>
+                            <span class="status-pill online">ONLINE & LISTENING</span>
+                        </div>
+                        <div class="dialogue-message" id="robo-message-text">
+                            "Greetings, Commander! I am your quantum assistant. Need a custom 3D web experience, quote
+                            estimation, or have questions? Send a direct transmission below!"
+                        </div>
+
+                        <!-- Quick Action Prompts -->
+                        <div class="quick-prompts">
+                            <button class="prompt-chip" data-prompt="Request a project quote">💬 Request Quote</button>
+                            <button class="prompt-chip" data-prompt="Schedule 3D demo">🚀 Schedule Demo</button>
+                            <button class="prompt-chip" data-prompt="Technical specifications">⚡ Tech Specs</button>
+                        </div>
+
+                        <!-- Interactive Message Input -->
+                        <form class="robo-msg-form" id="robo-chat-form">
+                            <input type="text" id="robo-input" class="robo-input"
+                                placeholder="Type your message to NEXUS-BOT..." autocomplete="off" required>
+                            <button type="submit" class="btn btn-cyan btn-send">
+                                <i data-lucide="send"></i>
+                                <span>Transmit</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Return to Home CTA Button -->
+                <div class="finale-actions">
+                    <button class="btn btn-glow btn-large" id="btn-return-home">
+                        <i data-lucide="arrow-up-circle"></i>
+                        <span>Return to Home Page</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-return-orbit">
+                        <i data-lucide="compass"></i>
+                        <span>Open Orbit Matrix</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FULL-SCREEN HOLOGRAPHIC PAGE VIEWS (ACCESSIBLE ONLY UPON CLICKING) -->
+
+    <!-- PAGE 02: ABOUT US (TIME STONE // EMERALD GREEN) -->
+    <div id="page-about" class="quantum-page-overlay theme-time" style="--stone-color: #00ff88; --stone-glow: rgba(0, 255, 136, 0.45); --stone-secondary: #00aa55;">
+        <div class="page-modal glass-card">
+            <button class="page-close-btn" data-close-page title="Return to Orbit Matrix">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="page-header">
+                <div class="hero-badge theme-badge">
+                    <span class="pulse-dot"></span>
+                    <span>SECTOR 02 // QUANTUM STUDIO</span>
+                </div>
+                <h2 class="page-title">ABOUT THE QUANTUM MATRIX</h2>
+                <p class="page-subtitle">Pioneering real-time spatial computing, GPU volumetric shader physics, and
+                    immersive WebGL realities.</p>
+            </div>
+            <div class="page-body">
+                <div class="about-grid">
+                    <div class="about-card glass-card">
+                        <div class="about-icon"><i data-lucide="cpu"></i></div>
+                        <h3>Zero-Point Architecture</h3>
+                        <p>We build mathematical geodesic lattice networks running on custom GLSL shaders with
+                            sub-millisecond frame dispatching.</p>
+                    </div>
+                    <div class="about-card glass-card">
+                        <div class="about-icon"><i data-lucide="globe"></i></div>
+                        <h3>Global Neural Grid</h3>
+                        <p>Our distributed WebGL compute pipeline powers high-fidelity 3D visualization for millions of
+                            concurrent users worldwide.</p>
+                    </div>
+                    <div class="about-card glass-card">
+                        <div class="about-icon"><i data-lucide="sparkles"></i></div>
+                        <h3>Photorealistic Physics</h3>
+                        <p>Simulating real-time dielectric glass refractions, volumetric emission, dynamic bloom, and
+                            ambient particle kinetics.</p>
+                    </div>
+                </div>
+                <div class="page-actions-center">
+                    <button class="btn btn-primary" data-close-page>
+                        <i data-lucide="compass"></i>
+                        <span>Return to Orbit Matrix</span>
+                    </button>
+                    <button class="btn btn-secondary" data-open-page="work">
+                        <i data-lucide="arrow-right"></i>
+                        <span>Explore Our Work</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 03: OUR WORK (POWER STONE // RADIANT AMETHYST PURPLE) -->
+    <div id="page-work" class="quantum-page-overlay theme-power" style="--stone-color: #c084fc; --stone-glow: rgba(192, 132, 252, 0.45); --stone-secondary: #8b5cf6;">
+        <div class="page-modal glass-card">
+            <button class="page-close-btn" data-close-page title="Return to Orbit Matrix">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="page-header">
+                <div class="hero-badge theme-badge">
+                    <span class="pulse-dot"></span>
+                    <span>SECTOR 03 // SELECTED PRODUCTIONS</span>
+                </div>
+                <h2 class="page-title">TRANSCENDENT 3D EXPERIENCES</h2>
+                <p class="page-subtitle">Selected industry-defining WebGL and Spatial Computing productions.</p>
+            </div>
+            <div class="page-body">
+                <div class="work-grid">
+                    <div class="work-card glass-card">
+                        <div class="work-header">
+                            <span class="work-num">01</span>
+                            <span class="work-tag">WEBGL2 ENGINE</span>
+                        </div>
+                        <h3 class="work-title">Aether Void Core</h3>
+                        <p class="work-desc">Real-time volumetric black hole simulation and relativistic gravitational
+                            lensing rendering in browser at 60fps.</p>
+                        <div class="work-tech">
+                            <span>GLSL 3.0</span>
+                            <span>Raymarching</span>
+                            <span>PostFX</span>
+                        </div>
+                    </div>
+
+                    <div class="work-card glass-card">
+                        <div class="work-header">
+                            <span class="work-num">02</span>
+                            <span class="work-tag">SPATIAL COMPUTING</span>
+                        </div>
+                        <h3 class="work-title">Synapse Neural Grid</h3>
+                        <p class="work-desc">Interconnected 10,000-node particle brain mesh with real-time biometric
+                            biofeedback audio-visual data streaming.</p>
+                        <div class="work-tech">
+                            <span>Three.js</span>
+                            <span>Compute Shaders</span>
+                            <span>Web Audio</span>
+                        </div>
+                    </div>
+
+                    <div class="work-card glass-card">
+                        <div class="work-header">
+                            <span class="work-num">03</span>
+                            <span class="work-tag">IMMERSIVE COMMERCE</span>
+                        </div>
+                        <h3 class="work-title">Chronos Cybernetic Matrix</h3>
+                        <p class="work-desc">Interactive luxury hyper-car configurator featuring anisotropic metallic
+                            reflections and physical glass dielectric materials.</p>
+                        <div class="work-tech">
+                            <span>PBR Shaders</span>
+                            <span>HDR Environment</span>
+                            <span>Kinetics</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-actions-center">
+                    <button class="btn btn-primary" data-close-page>
+                        <i data-lucide="compass"></i>
+                        <span>Return to Orbit Matrix</span>
+                    </button>
+                    <button class="btn btn-secondary" data-open-page="pricing">
+                        <i data-lucide="tag"></i>
+                        <span>View Pricing Tiers</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 04: PRICING (MIND STONE // SOLAR GOLD TOPAZ) -->
+    <div id="page-pricing" class="quantum-page-overlay theme-mind" style="--stone-color: #fbbf24; --stone-glow: rgba(251, 191, 36, 0.45); --stone-secondary: #f59e0b;">
+        <div class="page-modal glass-card">
+            <button class="page-close-btn" data-close-page title="Return to Orbit Matrix">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="page-header">
+                <div class="hero-badge theme-badge">
+                    <span class="pulse-dot"></span>
+                    <span>SECTOR 04 // TRANSPARENT SCALE TIERS</span>
+                </div>
+                <h2 class="page-title">ENGINEERED FOR TEAMS AT EVERY SCALE</h2>
+                <p class="page-subtitle">Unlock infinite quantum compute and bespoke 3D WebGL experiences.</p>
+            </div>
+            <div class="page-body">
+                <div class="pricing-grid">
+                    <div class="pricing-card glass-card">
+                        <div class="pricing-badge">STARTER</div>
+                        <h3 class="pricing-name">Quantum Core</h3>
+                        <div class="pricing-price">$49 <span>/ month</span></div>
+                        <p class="pricing-desc">Ideal for creative developers and experimental prototypes.</p>
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check"></i> 10M Volumetric FLOPs/sec</li>
+                            <li><i data-lucide="check"></i> Standard Shader Library</li>
+                            <li><i data-lucide="check"></i> 99.9% Quantum Uptime</li>
+                            <li><i data-lucide="check"></i> Community Discord Access</li>
+                        </ul>
+                        <button class="btn btn-secondary w-100" data-open-page="contact">Deploy Core</button>
+                    </div>
+
+                    <div class="pricing-card glass-card featured">
+                        <div class="pricing-popular">MOST POPULAR</div>
+                        <div class="pricing-badge theme-badge">ENTERPRISE</div>
+                        <h3 class="pricing-name">Neural Matrix</h3>
+                        <div class="pricing-price">$149 <span>/ month</span></div>
+                        <p class="pricing-desc">Built for fast-growing design studios and production apps.</p>
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check"></i> 100M Volumetric FLOPs/sec</li>
+                            <li><i data-lucide="check"></i> Custom GLSL Shader Passes</li>
+                            <li><i data-lucide="check"></i> Real-Time Audio Synth Engine</li>
+                            <li><i data-lucide="check"></i> 24/7 Dedicated Quantum SLA</li>
+                        </ul>
+                        <button class="btn btn-primary w-100" data-open-page="contact">Launch Matrix</button>
+                    </div>
+
+                    <div class="pricing-card glass-card">
+                        <div class="pricing-badge">BESPOKE</div>
+                        <h3 class="pricing-name">Celestial Grid</h3>
+                        <div class="pricing-price">Custom</div>
+                        <p class="pricing-desc">For enterprise applications requiring dedicated infrastructure.</p>
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check"></i> Unlimited Zero-Point Flux</li>
+                            <li><i data-lucide="check"></i> Custom 3D Asset Pipeline</li>
+                            <li><i data-lucide="check"></i> On-Premise GPU Acceleration</li>
+                            <li><i data-lucide="check"></i> Dedicated Graphics Architect</li>
+                        </ul>
+                        <button class="btn btn-secondary w-100" data-open-page="contact">Contact Sales</button>
+                    </div>
+                </div>
+                <div class="page-actions-center">
+                    <button class="btn btn-primary" data-close-page>
+                        <i data-lucide="compass"></i>
+                        <span>Return to Orbit Matrix</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 05: CONTACT US (REALITY STONE // RUBY CRIMSON FLAME) -->
+    <div id="page-contact" class="quantum-page-overlay theme-reality" style="--stone-color: #ff3b69; --stone-glow: rgba(255, 59, 105, 0.45); --stone-secondary: #ff6600;">
+        <div class="page-modal glass-card">
+            <button class="page-close-btn" data-close-page title="Return to Orbit Matrix">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="page-header">
+                <div class="hero-badge theme-badge">
+                    <span class="pulse-dot"></span>
+                    <span>SECTOR 05 // DIRECT TRANSMISSION PORTAL</span>
+                </div>
+                <h2 class="page-title">START YOUR NEXT 3D JOURNEY</h2>
+                <p class="page-subtitle">Transmit your project vision across our quantum matrix. We respond within 24
+                    hours.</p>
+            </div>
+            <div class="page-body">
+                <div class="contact-container glass-card">
+                    <form class="contact-form" id="quantum-contact-form"
+                        onsubmit="event.preventDefault(); alert('Quantum Transmission Received! Our team will contact you shortly.');">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">COMMANDER NAME</label>
+                                <input type="text" class="form-input" placeholder="e.g. Alex Morgan" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">FREQUENCY / EMAIL</label>
+                                <input type="email" class="form-input" placeholder="alex@nexus-space.io" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PROJECT SPECIFICATIONS</label>
+                            <textarea class="form-textarea" rows="4"
+                                placeholder="Describe your vision, budget range, and timeline parameters..."
+                                required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i data-lucide="send"></i>
+                            <span>Transmit Message</span>
+                        </button>
+                    </form>
+                </div>
+                <div class="page-actions-center">
+                    <button class="btn btn-secondary" data-close-page>
+                        <i data-lucide="compass"></i>
+                        <span>Return to Orbit Matrix</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="app.js?v=4.0"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
