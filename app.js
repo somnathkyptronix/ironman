@@ -674,11 +674,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', closeAllPages);
     });
 
-    document.querySelectorAll('[data-open-page]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = btn.getAttribute('data-open-page');
+    // Delegated click handler for all [data-open-page] elements (desktop & mobile carousel)
+    document.addEventListener('click', (e) => {
+        const targetBtn = e.target.closest('[data-open-page]');
+        if (targetBtn) {
+            e.preventDefault();
+            const target = targetBtn.getAttribute('data-open-page');
             if (target) openPage(target);
-        });
+        }
     });
 
     // Close on ESC key

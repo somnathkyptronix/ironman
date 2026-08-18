@@ -1113,6 +1113,10 @@ body {
     overflow: hidden;
 }
 
+.mobile-orbit-carousel-wrap {
+    display: none;
+}
+
 .connector-pin {
     position: absolute;
     pointer-events: auto;
@@ -2345,49 +2349,155 @@ body {
         display: none !important;
     }
 
-    /* 3. Orbit Hub & Pins */
+    /* 3. Orbit Hub: Horizontal Cards Section on Mobile */
+    .orbit-hub-section {
+        min-height: auto;
+        padding: 3.5rem 0 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .orbit-hud-indicator {
         font-size: 0.65rem;
         padding: 0.4rem 0.85rem;
+        margin-bottom: 1.5rem;
     }
 
-    .pin-anchor-ring {
-        display: none;
+    /* Hide 3D overlapping floating pins on mobile */
+    .orbit-connector-overlay {
+        display: none !important;
     }
 
-    .pin-card {
-        min-width: 130px;
-        max-width: 145px;
-        padding: 0.5rem 0.65rem;
-        border-radius: 8px;
-    }
-
-    .pin-header {
-        margin-bottom: 0.15rem;
-    }
-
-    .pin-code {
-        font-size: 0.62rem;
-    }
-
-    .pin-status {
-        display: none;
-    }
-
-    .pin-title {
-        font-size: 0.78rem;
-        margin-bottom: 0.15rem;
-    }
-
-    .pin-desc {
-        display: none;
-    }
-
-    .pin-action {
-        font-size: 0.62rem;
-        padding: 2px 6px;
+    /* Show clean, horizontal swipeable cards on mobile */
+    .mobile-orbit-carousel-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         width: 100%;
+        position: relative;
+        z-index: 35;
+        margin-top: 1rem;
+    }
+
+    .mobile-carousel-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--primary-cyan);
+        background: rgba(0, 210, 255, 0.08);
+        border: 1px solid rgba(0, 210, 255, 0.25);
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        letter-spacing: 0.04em;
+    }
+
+    .mobile-carousel-hint i {
+        width: 14px;
+        height: 14px;
+    }
+
+    .mobile-orbit-carousel {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0.85rem;
+        padding: 0.5rem 1rem 1.25rem;
+    }
+
+    .mobile-orbit-carousel::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-hub-card {
+        flex: 0 0 210px;
+        scroll-snap-align: center;
+        background: rgba(4, 12, 35, 0.94);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1.5px solid var(--node-color);
+        box-shadow: 0 0 20px var(--node-glow), 0 10px 25px rgba(0, 0, 0, 0.8);
+        border-radius: 14px;
+        padding: 1.15rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 155px;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mobile-hub-card:active {
+        transform: scale(0.97);
+    }
+
+    .m-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+    }
+
+    .m-card-code {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--node-color);
+    }
+
+    .m-card-status {
+        font-family: var(--font-mono);
+        font-size: 0.58rem;
+        color: #00ffaa;
+        background: rgba(0, 255, 170, 0.12);
+        border: 1px solid rgba(0, 255, 170, 0.3);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .m-card-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.3px;
+    }
+
+    .m-card-desc {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        line-height: 1.35;
+        margin-bottom: 0.75rem;
+    }
+
+    .m-card-btn {
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
+        gap: 0.4rem;
+        width: 100%;
+        padding: 0.45rem 0.8rem;
+        border-radius: 8px;
+        background: var(--node-color);
+        color: #030611;
+        font-family: var(--font-heading);
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 0 12px var(--node-glow);
+        border: none;
+    }
+
+    .m-card-btn i {
+        width: 13px;
+        height: 13px;
     }
 
     /* 4. Robot Assistant Finale Section */
