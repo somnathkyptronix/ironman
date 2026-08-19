@@ -824,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.add(ambientLight);
 
     // ----------------------------------------------------------------------
-    // 5. BACKGROUND AUDIO ENGINE (ALWAYS ENABLED WITH AUTO-PLAY & GESTURE TRIGGER)
+    // 5. BACKGROUND AUDIO ENGINE (100% AUTOMATIC PLAYBACK ON ENTER / REFRESH)
     // ----------------------------------------------------------------------
     const bgAudio = document.getElementById('nexus-bg-soundtrack') || new Audio('public/The_Bohemian_Rhapsody_s_-_Another_One_Bites_the_Dust_From_Iron_Man_2_(mp3.pm).mp3');
     bgAudio.loop = true;
@@ -832,7 +832,6 @@ document.addEventListener('DOMContentLoaded', () => {
     bgAudio.preload = 'auto';
 
     let isAudioExplicitlyMuted = false;
-    const starterPill = document.getElementById('audio-starter-pill');
 
     function updateAudioUI(playing) {
         state.audioActive = playing;
@@ -847,26 +846,23 @@ document.addEventListener('DOMContentLoaded', () => {
             audioBtn.classList.toggle('playing', playing);
             audioBtn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
         }
-        if (starterPill) {
-            if (playing) {
-                starterPill.classList.add('hidden');
-            }
-        }
     }
 
     function playBackgroundAudio() {
         if (isAudioExplicitlyMuted) return;
+        bgAudio.muted = false;
+        bgAudio.volume = 0.55;
         const playPromise = bgAudio.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 updateAudioUI(true);
                 logConsole("AUDIO", "Background Soundtrack ('Another One Bites the Dust') engaged.", "pulse");
-            }).catch(err => {
-                // Browser blocked un-interacted autoplay: show activation prompt
-                console.log("Browser autoplay policy active; waiting for user interaction:", err.message);
-                if (starterPill && !isAudioExplicitlyMuted) {
-                    starterPill.classList.remove('hidden');
-                }
+            }).catch(() => {
+                // If browser blocks unmuted playback initially, start muted and unmute instantly on ambient movement
+                bgAudio.muted = true;
+                bgAudio.play().then(() => {
+                    updateAudioUI(true);
+                }).catch(() => {});
             });
         }
     }
@@ -879,24 +875,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleAudio() {
-        if (bgAudio.paused) {
+        if (bgAudio.paused || bgAudio.muted) {
             isAudioExplicitlyMuted = false;
+            bgAudio.muted = false;
+            bgAudio.volume = 0.55;
             playBackgroundAudio();
         } else {
             pauseBackgroundAudio();
         }
     }
 
-    // Direct click on the starter pill
-    if (starterPill) {
-        starterPill.addEventListener('click', (e) => {
-            e.stopPropagation();
-            isAudioExplicitlyMuted = false;
-            playBackgroundAudio();
-        });
-    }
-
-    // Ensure audio loops and stays playing
+    // Ensure audio loops and stays playing indefinitely
     bgAudio.addEventListener('ended', () => {
         if (!isAudioExplicitlyMuted) {
             bgAudio.currentTime = 0;
@@ -906,25 +895,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-resume when tab becomes visible again
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && !isAudioExplicitlyMuted && bgAudio.paused) {
+        if (document.visibilityState === 'visible' && !isAudioExplicitlyMuted && (bgAudio.paused || bgAudio.muted)) {
+            bgAudio.muted = false;
             playBackgroundAudio();
         }
     });
 
-    // Auto-play when website opens + multi-event instant gesture trigger
+    // 100% Automatic Auto-Play on Website Load & Ambient Movement
     function initBackgroundMusicAutoplay() {
-        // Attempt immediate playback on load
+        // Try playing immediately
         playBackgroundAudio();
 
-        const unlockAutoplay = () => {
-            if (!isAudioExplicitlyMuted && bgAudio.paused) {
-                playBackgroundAudio();
+        const unlockAmbientAudio = () => {
+            if (!isAudioExplicitlyMuted) {
+                if (bgAudio.muted) {
+                    bgAudio.muted = false;
+                    bgAudio.volume = 0.55;
+                }
+                if (bgAudio.paused) {
+                    playBackgroundAudio();
+                }
             }
         };
 
-        // Capture on any interaction anywhere on the screen
-        ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'scroll', 'wheel'].forEach(evt => {
-            window.addEventListener(evt, unlockAutoplay, { passive: true });
+        // Ambient listeners: cursor movement, touch, scroll, focus - triggers automatically without asking the user
+        ['mousemove', 'pointermove', 'pointerdown', 'touchstart', 'touchend', 'scroll', 'wheel', 'keydown', 'focus'].forEach(evt => {
+            window.addEventListener(evt, unlockAmbientAudio, { passive: true, capture: true });
         });
     }
 
