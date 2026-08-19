@@ -835,21 +835,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAudioUI(playing) {
         state.audioActive = playing;
-        const icons = [document.getElementById('audio-icon'), document.getElementById('audio-icon-desktop')];
-        const audioBtns = [document.getElementById('audio-toggle'), document.getElementById('audio-toggle-desktop')];
+        const icon = document.getElementById('audio-icon');
+        const audioBtn = document.getElementById('audio-toggle');
         
-        icons.forEach(icon => {
-            if (icon) {
-                icon.setAttribute('data-lucide', playing ? 'volume-2' : 'volume-x');
-            }
-        });
-        audioBtns.forEach(btn => {
-            if (btn) {
-                btn.classList.toggle('playing', playing);
-                btn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
-            }
-        });
-        if (window.lucide) lucide.createIcons();
+        if (icon) {
+            icon.setAttribute('data-lucide', playing ? 'volume-2' : 'volume-x');
+            if (window.lucide) lucide.createIcons();
+        }
+        if (audioBtn) {
+            audioBtn.classList.toggle('playing', playing);
+            audioBtn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
+        }
     }
 
     function playBackgroundAudio() {
@@ -1034,9 +1030,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    [document.getElementById('audio-toggle'), document.getElementById('audio-toggle-desktop')].forEach(btn => {
-        if (btn) btn.addEventListener('click', toggleAudio);
-    });
+    const audioToggle = document.getElementById('audio-toggle');
+    if (audioToggle) {
+        audioToggle.addEventListener('click', toggleAudio);
+    }
 
     const btnPulseNet = document.getElementById('btn-pulse-network');
     if (btnPulseNet) {
