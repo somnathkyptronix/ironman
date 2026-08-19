@@ -824,14 +824,14 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.add(ambientLight);
 
     // ----------------------------------------------------------------------
-    // 5. BACKGROUND AUDIO ENGINE (MP3 Soundtrack + Pulse FX)
+    // 5. BACKGROUND AUDIO ENGINE (ALWAYS ENABLED WITH MULTI-GESTURE AUTO-RESUME)
     // ----------------------------------------------------------------------
     const bgAudio = new Audio('public/The_Bohemian_Rhapsody_s_-_Another_One_Bites_the_Dust_From_Iron_Man_2_(mp3.pm).mp3');
     bgAudio.loop = true;
     bgAudio.volume = 0.55;
     bgAudio.preload = 'auto';
 
-    let userHasInteracted = false;
+    let isAudioExplicitlyMuted = false;
 
     function updateAudioUI(playing) {
         state.audioActive = playing;
@@ -849,17 +849,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playBackgroundAudio() {
+        if (isAudioExplicitlyMuted) return;
         bgAudio.play().then(() => {
             updateAudioUI(true);
             logConsole("AUDIO", "Background Soundtrack ('Another One Bites the Dust') engaged.", "pulse");
         }).catch(err => {
             // Autoplay policy may require initial gesture
-            console.log("Autoplay waiting for initial user interaction:", err.message);
-            updateAudioUI(false);
+            console.log("Autoplay waiting for user gesture:", err.message);
         });
     }
 
     function pauseBackgroundAudio() {
+        isAudioExplicitlyMuted = true;
         bgAudio.pause();
         updateAudioUI(false);
         logConsole("AUDIO", "Background soundtrack paused.", "info");
@@ -867,30 +868,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleAudio() {
         if (bgAudio.paused) {
+            isAudioExplicitlyMuted = false;
             playBackgroundAudio();
         } else {
             pauseBackgroundAudio();
         }
     }
 
-    // Auto-play when website opens + instant gesture trigger
+    // Ensure audio loops and stays playing
+    bgAudio.addEventListener('ended', () => {
+        if (!isAudioExplicitlyMuted) {
+            bgAudio.currentTime = 0;
+            bgAudio.play().catch(() => {});
+        }
+    });
+
+    // Auto-resume when tab becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !isAudioExplicitlyMuted && bgAudio.paused) {
+            playBackgroundAudio();
+        }
+    });
+
+    // Auto-play when website opens + multi-event instant gesture trigger
     function initBackgroundMusicAutoplay() {
         playBackgroundAudio();
 
         const unlockAutoplay = () => {
-            if (!userHasInteracted) {
-                userHasInteracted = true;
-                if (bgAudio.paused) {
-                    playBackgroundAudio();
-                }
+            if (!isAudioExplicitlyMuted && bgAudio.paused) {
+                playBackgroundAudio();
             }
-            ['click', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
-                window.removeEventListener(evt, unlockAutoplay);
-            });
         };
 
-        ['click', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
-            window.addEventListener(evt, unlockAutoplay, { once: true, passive: true });
+        ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'scroll', 'wheel'].forEach(evt => {
+            window.addEventListener(evt, unlockAutoplay, { passive: true });
         });
     }
 
