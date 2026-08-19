@@ -2414,9 +2414,10 @@ body {
         height: 100vh;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
+        justify-content: center; /* Exactly in the vertical middle of screen and 3D background sphere */
         align-items: center;
-        padding-bottom: 6.2rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
         overflow: hidden;
         pointer-events: none;
     }
@@ -2436,7 +2437,7 @@ body {
         display: none !important;
     }
 
-    /* Show clean, horizontal swipeable cards on mobile */
+    /* Show clean, horizontal swipeable cards in middle on mobile */
     .mobile-orbit-carousel-wrap {
         display: flex;
         flex-direction: column;
@@ -2456,14 +2457,15 @@ body {
         font-size: 0.68rem;
         font-weight: 600;
         color: var(--primary-cyan);
-        background: rgba(3, 8, 24, 0.88);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(0, 210, 255, 0.3);
-        padding: 0.35rem 0.85rem;
+        background: rgba(3, 8, 24, 0.9);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(0, 210, 255, 0.35);
+        padding: 0.4rem 0.95rem;
         border-radius: 20px;
-        margin-bottom: 0.85rem;
+        margin-bottom: 1.1rem;
         letter-spacing: 0.04em;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     }
 
     .scroll-track-bar {
@@ -2487,14 +2489,15 @@ body {
         width: 100%;
         overflow: hidden;
         position: relative;
-        padding: 0.5rem 1rem 0.75rem;
+        padding: 0.5rem 0 0.85rem;
     }
 
     .mobile-orbit-carousel {
         display: flex;
         width: max-content;
-        gap: 0.95rem;
-        transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+        gap: 16px;
+        padding: 0 calc(50vw - 110px); /* Center active card exactly in the middle horizontally */
+        transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         will-change: transform;
     }
 
@@ -2518,7 +2521,7 @@ body {
     }
 
     .mobile-hub-card.active, .mobile-hub-card:active {
-        transform: translateY(-8px) scale(1.03);
+        transform: translateY(-8px) scale(1.04);
         border-color: var(--node-color);
         box-shadow: 0 0 30px var(--node-glow), 0 15px 35px rgba(0, 0, 0, 0.9);
     }

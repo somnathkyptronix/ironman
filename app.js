@@ -1237,20 +1237,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalScroll = orbitHub.offsetHeight - window.innerHeight;
             if (totalScroll > 0) {
                 const scrollProgress = Math.min(1.0, Math.max(0.0, -orbitRect.top / totalScroll));
-                const windowWidth = mobileCarousel.parentElement.clientWidth;
-                const fullWidth = mobileCarousel.scrollWidth;
-                const maxTranslate = Math.max(0, fullWidth - windowWidth + 30);
                 
-                const currentTranslate = scrollProgress * maxTranslate;
+                // Exactly center each active card in the middle of the viewport and background sphere
+                const cardStep = 220 + 16; // card width (220px) + gap (16px)
+                const totalDistance = 4 * cardStep; // 4 steps between 5 cards
+                const currentTranslate = scrollProgress * totalDistance;
                 mobileCarousel.style.transform = `translateX(-${currentTranslate}px)`;
 
                 // Slide up entrance animation
                 const wrap = mobileCarousel.closest('.mobile-orbit-carousel-wrap');
                 if (wrap) {
                     const enterProgress = Math.min(1.0, Math.max(0.0, (-orbitRect.top + 150) / 250));
-                    const slideUpY = (1.0 - enterProgress) * 40;
+                    const slideUpY = (1.0 - enterProgress) * 35;
                     wrap.style.transform = `translateY(${slideUpY}px)`;
-                    wrap.style.opacity = `${0.3 + enterProgress * 0.7}`;
+                    wrap.style.opacity = `${0.4 + enterProgress * 0.6}`;
                 }
 
                 if (mobileThumb) {
@@ -1260,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sectorIndex = Math.min(5, Math.floor(scrollProgress * 4.98) + 1);
                     mobileStatus.textContent = `SECTOR ${sectorIndex} OF 5 // SCROLL TO CYCLE`;
 
-                    // Mark active card for slide-up elevation
+                    // Mark active card for center elevation
                     const cards = mobileCarousel.querySelectorAll('.mobile-hub-card');
                     cards.forEach((card, idx) => {
                         card.classList.toggle('active', idx === (sectorIndex - 1));
