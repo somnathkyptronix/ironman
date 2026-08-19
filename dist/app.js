@@ -824,14 +824,15 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.add(ambientLight);
 
     // ----------------------------------------------------------------------
-    // 5. BACKGROUND AUDIO ENGINE (ALWAYS ENABLED WITH MULTI-GESTURE AUTO-RESUME)
+    // 5. BACKGROUND AUDIO ENGINE (ALWAYS ENABLED WITH AUTO-PLAY & GESTURE TRIGGER)
     // ----------------------------------------------------------------------
-    const bgAudio = new Audio('public/The_Bohemian_Rhapsody_s_-_Another_One_Bites_the_Dust_From_Iron_Man_2_(mp3.pm).mp3');
+    const bgAudio = document.getElementById('nexus-bg-soundtrack') || new Audio('public/The_Bohemian_Rhapsody_s_-_Another_One_Bites_the_Dust_From_Iron_Man_2_(mp3.pm).mp3');
     bgAudio.loop = true;
     bgAudio.volume = 0.55;
     bgAudio.preload = 'auto';
 
     let isAudioExplicitlyMuted = false;
+    const starterPill = document.getElementById('audio-starter-pill');
 
     function updateAudioUI(playing) {
         state.audioActive = playing;
@@ -846,17 +847,28 @@ document.addEventListener('DOMContentLoaded', () => {
             audioBtn.classList.toggle('playing', playing);
             audioBtn.title = playing ? "Mute Background Soundtrack" : "Play Background Soundtrack";
         }
+        if (starterPill) {
+            if (playing) {
+                starterPill.classList.add('hidden');
+            }
+        }
     }
 
     function playBackgroundAudio() {
         if (isAudioExplicitlyMuted) return;
-        bgAudio.play().then(() => {
-            updateAudioUI(true);
-            logConsole("AUDIO", "Background Soundtrack ('Another One Bites the Dust') engaged.", "pulse");
-        }).catch(err => {
-            // Autoplay policy may require initial gesture
-            console.log("Autoplay waiting for user gesture:", err.message);
-        });
+        const playPromise = bgAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                updateAudioUI(true);
+                logConsole("AUDIO", "Background Soundtrack ('Another One Bites the Dust') engaged.", "pulse");
+            }).catch(err => {
+                // Browser blocked un-interacted autoplay: show activation prompt
+                console.log("Browser autoplay policy active; waiting for user interaction:", err.message);
+                if (starterPill && !isAudioExplicitlyMuted) {
+                    starterPill.classList.remove('hidden');
+                }
+            });
+        }
     }
 
     function pauseBackgroundAudio() {
@@ -873,6 +885,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             pauseBackgroundAudio();
         }
+    }
+
+    // Direct click on the starter pill
+    if (starterPill) {
+        starterPill.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isAudioExplicitlyMuted = false;
+            playBackgroundAudio();
+        });
     }
 
     // Ensure audio loops and stays playing
@@ -892,6 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-play when website opens + multi-event instant gesture trigger
     function initBackgroundMusicAutoplay() {
+        // Attempt immediate playback on load
         playBackgroundAudio();
 
         const unlockAutoplay = () => {
@@ -900,6 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        // Capture on any interaction anywhere on the screen
         ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'scroll', 'wheel'].forEach(evt => {
             window.addEventListener(evt, unlockAutoplay, { passive: true });
         });
