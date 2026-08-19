@@ -2416,7 +2416,7 @@ body {
         flex-direction: column;
         justify-content: flex-end;
         align-items: center;
-        padding-bottom: 3.5rem;
+        padding-bottom: 6.2rem;
         overflow: hidden;
         pointer-events: none;
     }
@@ -2428,7 +2428,7 @@ body {
     .orbit-hud-indicator {
         font-size: 0.65rem;
         padding: 0.4rem 0.85rem;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.4rem;
     }
 
     /* Hide 3D overlapping floating pins on mobile */
@@ -2444,6 +2444,8 @@ body {
         width: 100%;
         position: relative;
         z-index: 35;
+        transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+        will-change: transform, opacity;
     }
 
     .mobile-carousel-hint {
@@ -2485,7 +2487,7 @@ body {
         width: 100%;
         overflow: hidden;
         position: relative;
-        padding: 0.25rem 1rem 0.5rem;
+        padding: 0.5rem 1rem 0.75rem;
     }
 
     .mobile-orbit-carousel {
@@ -2512,7 +2514,13 @@ body {
         min-height: 155px;
         cursor: pointer;
         user-select: none;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    }
+
+    .mobile-hub-card.active, .mobile-hub-card:active {
+        transform: translateY(-8px) scale(1.03);
+        border-color: var(--node-color);
+        box-shadow: 0 0 30px var(--node-glow), 0 15px 35px rgba(0, 0, 0, 0.9);
     }
 
     .mobile-hub-card:active {

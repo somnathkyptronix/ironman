@@ -1244,12 +1244,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentTranslate = scrollProgress * maxTranslate;
                 mobileCarousel.style.transform = `translateX(-${currentTranslate}px)`;
 
+                // Slide up entrance animation
+                const wrap = mobileCarousel.closest('.mobile-orbit-carousel-wrap');
+                if (wrap) {
+                    const enterProgress = Math.min(1.0, Math.max(0.0, (-orbitRect.top + 150) / 250));
+                    const slideUpY = (1.0 - enterProgress) * 40;
+                    wrap.style.transform = `translateY(${slideUpY}px)`;
+                    wrap.style.opacity = `${0.3 + enterProgress * 0.7}`;
+                }
+
                 if (mobileThumb) {
                     mobileThumb.style.width = `${Math.max(18, scrollProgress * 100)}%`;
                 }
                 if (mobileStatus) {
                     const sectorIndex = Math.min(5, Math.floor(scrollProgress * 4.98) + 1);
                     mobileStatus.textContent = `SECTOR ${sectorIndex} OF 5 // SCROLL TO CYCLE`;
+
+                    // Mark active card for slide-up elevation
+                    const cards = mobileCarousel.querySelectorAll('.mobile-hub-card');
+                    cards.forEach((card, idx) => {
+                        card.classList.toggle('active', idx === (sectorIndex - 1));
+                    });
                 }
             }
         }
